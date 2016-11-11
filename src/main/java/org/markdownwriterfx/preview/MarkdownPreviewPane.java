@@ -94,6 +94,7 @@ public class MarkdownPreviewPane
 		switch (rendererType) {
 			case CommonMark:	activeRenderer = new CommonmarkPreviewRenderer(); break;
 			case FlexMark:		activeRenderer = new FlexmarkPreviewRenderer(); break;
+			case GitHub:		activeRenderer = new GitHubPreviewRenderer(); break;
 		}
 	}
 
