@@ -34,8 +34,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -44,6 +42,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
 
 import org.fxmisc.livedirs.LiveDirs;
@@ -104,19 +103,15 @@ public class WorkspacePane {
 		treeView = new TreeView<>();
 		treeView.setCellFactory(param -> new PathTreeCell());
 		treeView.setShowRoot(false);
-		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+		treeView.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
-			public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-				TreeItem<Path> selectedItem = (TreeItem<Path>) newValue;
-				if (selectedItem != null) {
-					File selectedFile = selectedItem.getValue().toFile();
-					if (selectedFile.isFile()) {
-						List<File> selectedFiles = new ArrayList<>();
-						selectedFiles.add(selectedItem.getValue().toFile());
-						fileEditorTabPane.openEditors(selectedFiles, 0);
-					}
+			public void handle(MouseEvent mouseEvent) {
+				if (mouseEvent.getClickCount() == 2) {
+					TreeItem<Path> selectedItem = treeView.getSelectionModel().getSelectedItem();
+					openSelectedFile(selectedItem.getValue());
 				}
 			}
+
 		});
 
 		pane.add(workspacesComboBox, "cell 0 0");
@@ -140,6 +135,21 @@ public class WorkspacePane {
 			MarkdownWriterFXApp.getState().put("lastDirectory", dirPath.toString());
 		} catch (IOException ex) {
 			ex.printStackTrace();
+		}
+	}
+
+	private void openSelectedFile(Path path) {
+		File selectedFile = path.toFile();
+		if (selectedFile.isFile()) {
+			List<File> selectedFiles = new ArrayList<>();
+			selectedFiles.add(selectedFile);
+			fileEditorTabPane.openEditors(selectedFiles, 0);
+			try {
+				String[] command = { "cmd.exe", "/C", path.toString() };
+				Runtime.getRuntime().exec(command);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
