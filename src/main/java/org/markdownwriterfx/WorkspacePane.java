@@ -46,6 +46,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
 
 import org.fxmisc.livedirs.LiveDirs;
+import org.markdownwriterfx.util.ResourceListener;
 import org.tbee.javafx.scene.layout.fxml.MigPane;
 
 import de.jensd.fx.glyphs.GlyphsDude;
@@ -141,6 +142,12 @@ public class WorkspacePane {
 	private void openSelectedFile(Path path) {
 		File selectedFile = path.toFile();
 		if (selectedFile.isFile()) {
+			ResourceListener.addListener(path.getParent().toString(), new ResourceListener.IResourceUpdatedHandle() {
+				@Override
+				public void updatedHandle() {
+					fileEditorTabPane.getActiveFileEditor().load();
+				}
+			});
 			List<File> selectedFiles = new ArrayList<>();
 			selectedFiles.add(selectedFile);
 			fileEditorTabPane.openEditors(selectedFiles, 0);
