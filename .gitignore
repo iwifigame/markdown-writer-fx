@@ -2,3 +2,5 @@
 /build/
 /.gradle/
 /gradle/
+/.settings/
+/src/test/java/org/markdownwriterfx/editor/JavaFxTest.java
