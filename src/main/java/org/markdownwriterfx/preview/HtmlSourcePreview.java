@@ -5,10 +5,10 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- *  o Redistributions of source code must retain the above copyright
+ *  * Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  *
- *  o Redistributions in binary form must reproduce the above copyright
+ *  * Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
@@ -27,10 +27,19 @@
 
 package org.markdownwriterfx.preview;
 
-import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import javafx.scene.control.IndexRange;
 import javafx.scene.control.ScrollBar;
-import javafx.scene.control.TextArea;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.StyleClassedTextArea;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.markdownwriterfx.preview.MarkdownPreviewPane.PreviewContext;
 import org.markdownwriterfx.preview.MarkdownPreviewPane.Renderer;
+import org.markdownwriterfx.syntaxhighlighter.SyntaxHighlighter;
 import org.markdownwriterfx.util.Utils;
 
 /**
@@ -41,37 +50,70 @@ import org.markdownwriterfx.util.Utils;
 class HtmlSourcePreview
 	implements MarkdownPreviewPane.Preview
 {
-	private final TextArea textArea = new TextArea();
+	private PreviewStyledTextArea textArea;
+	private VirtualizedScrollPane<StyleClassedTextArea> scrollPane;
 	private ScrollBar vScrollBar;
 
 	HtmlSourcePreview() {
-		textArea.setEditable(false);
-		textArea.setFocusTraversable(false);
+	}
+
+	private void createNodes() {
+		textArea = new PreviewStyledTextArea();
 		textArea.setWrapText(true);
+		textArea.getStylesheets().add("org/markdownwriterfx/prism.css");
+
+		scrollPane = new VirtualizedScrollPane<>(textArea);
 	}
 
 	@Override
 	public javafx.scene.Node getNode() {
-		return textArea;
+		if (scrollPane == null)
+			createNodes();
+		return scrollPane;
 	}
 
 	@Override
-	public void update(Renderer renderer, Path path) {
-		double scrollTop = textArea.getScrollTop();
-
-		textArea.setText(renderer.getHtml());
-
-		textArea.setScrollTop(scrollTop);
+	public void update(PreviewContext context, Renderer renderer) {
+		String html = renderer.getHtml(true);
+		textArea.replaceText(html, computeHighlighting(html));
 	}
 
 	@Override
-	public void scrollY(double value) {
+	public void scrollY(PreviewContext context, double value) {
 		if (vScrollBar == null)
-			vScrollBar = Utils.findVScrollBar(textArea);
+			vScrollBar = Utils.findVScrollBar(scrollPane);
 		if (vScrollBar == null)
 			return;
 
 		double maxValue = vScrollBar.maxProperty().get();
 		vScrollBar.setValue(maxValue * value);
+	}
+
+	@Override
+	public void editorSelectionChanged(PreviewContext context, IndexRange range) {
+	}
+
+	//---- selection highlighting ---------------------------------------------
+
+	private static final HashMap<String, Collection<String>> spanStyleCache = new HashMap<>();
+
+	private static StyleSpans<Collection<String>> computeHighlighting(String text) {
+		StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+		SyntaxHighlighter.highlight(text, "html", (length, style) -> {
+			spansBuilder.add(toSpanStyle(style), length);
+		});
+		return spansBuilder.create();
+	}
+
+	private static Collection<String> toSpanStyle(String style) {
+		if (style == null)
+			return Collections.emptyList();
+
+		Collection<String> spanStyle = spanStyleCache.get(style);
+		if (spanStyle == null) {
+			spanStyle = Arrays.asList(style, "token");
+			spanStyleCache.put(style, spanStyle);
+		}
+		return spanStyle;
 	}
 }

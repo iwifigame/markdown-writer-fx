@@ -1,14 +1,41 @@
 Markdown Writer FX Change Log
 =============================
 
+## 0.7
+
+- Highlight paragraph in Preview that contain the caret of the editor.
+- Show source positions for CommonMark in Markdown AST view.
+- Reordered items in "Insert" menu and toolbar.
+- Formatting toolbar items (bold, italic, etc) are highlighted
+  if the caret in the editor is at formatted text.
+
+
+## 0.6
+
+- Syntax highlighting for HTML/XML/SVG/MathML in editor.
+- Syntax highlighting for fenced code blocks in Preview that
+  supports [120 languages](http://prismjs.com/#languages-list) (issue #9).
+- Syntax highlighting in HTML source view.
+- Syntax highlighting in Markdown AST view.
+- Highlight ranges in Markdown AST view that contain the selection of the editor.
+
+
 ## 0.5
 
 - Move selected lines up or down with `Alt+Up` or `Alt+Down`.
 - Duplicate selected lines up or down with `Ctrl+Alt+Up` or `Ctrl+Alt+Down`.
+- Indent or unindent lines with `Tab` or `Shift+Tab`. `Backspace` key unindents
+  line if caret is in leading whitespace of a line.
+- Auto-indent for block quotes and GFM task lists (`Enter` key adds
+  block quote markers or task list markers to new line).
 - Smart "Insert > Header X": Support toggle header and change header level.
 - Smarter "Insert > Bold/Italic/Strikethrough/Inline Code": if selection contains
   bold/italic/strikethrough/inline-code text, then it will be changed to plain text.
+- Improved "Insert > Link/Image" allows editing existing links/images in dialogs.
+- Support Autolinks (link without text) and Email links.
+- Configurable bold, italic and unordered list markers in Options dialog.
 - Fixed background color of selected text in editor.
+- Updated [commonmark-java] and [flexmark-java] to [CommonMark] spec 0.27.
 
 
 ## 0.4

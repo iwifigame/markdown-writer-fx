@@ -237,7 +237,7 @@ class FindReplacePane
 			return;
 
 		Range activeHit = getActiveHit();
-		textArea.selectRange(activeHit.start, activeHit.end);
+		SmartEdit.selectRange(textArea, activeHit.start, activeHit.end);
 	}
 
 	private void replace() {
@@ -255,7 +255,7 @@ class FindReplacePane
 			if (replace == null)
 				return; // error
 		}
-		textArea.replaceText(activeHit.start, activeHit.end, replace);
+		SmartEdit.replaceText(textArea, activeHit.start, activeHit.end, replace);
 
 		selectActiveHit();
 	}
@@ -291,10 +291,10 @@ class FindReplacePane
 			prev = hit;
 		}
 
-		textArea.replaceText(first.start, last.end, buf.toString());
+		SmartEdit.replaceText(textArea, first.start, last.end, buf.toString());
 
 		int caret = first.start + buf.length();
-		textArea.selectRange(caret, caret);
+		SmartEdit.selectRange(textArea, caret, caret);
 		textArea.requestFocus();
 	}
 
@@ -549,12 +549,13 @@ class FindReplacePane
 		//======== pane ========
 		{
 			pane.setLayout("insets 0,hidemode 3");
-			pane.setCols("[fill][fill]0[fill][pref:n,fill]1px[pref:n,fill][grow,shrinkprio 200,fill][fill]");
+			pane.setCols("[shrink 0,fill][fill]0[fill][pref:n,fill]1px[pref:n,fill][grow,fill][fill]");
 			pane.setRows("[fill]0[]");
 
 			//---- findField ----
 			findField.setPromptText(Messages.get("FindReplacePane.findField.promptText"));
-			pane.add(findField, "cell 0 0,width 200:200:200");
+			findField.setPrefColumnCount(15);
+			pane.add(findField, "cell 0 0");
 
 			//---- previousButton ----
 			previousButton.setFocusTraversable(false);
@@ -582,12 +583,13 @@ class FindReplacePane
 			//======== replacePane ========
 			{
 				replacePane.setLayout("insets rel 0 0 0");
-				replacePane.setCols("[fill][pref:n,fill][pref:n,fill][grow,shrinkprio 200,fill]");
+				replacePane.setCols("[shrink 0,fill][pref:n,fill][pref:n,fill][grow,fill]");
 				replacePane.setRows("[]");
 
 				//---- replaceField ----
 				replaceField.setPromptText(Messages.get("FindReplacePane.replaceField.promptText"));
-				replacePane.add(replaceField, "cell 0 0,width 200:200:200");
+				replaceField.setPrefColumnCount(15);
+				replacePane.add(replaceField, "cell 0 0");
 
 				//---- replaceButton ----
 				replaceButton.setText(Messages.get("FindReplacePane.replaceButton.text"));
